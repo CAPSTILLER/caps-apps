@@ -1,0 +1,7 @@
+GITHUB / VERCEL UPLOAD NOTES
+============================
+
+- Keep index.html at the ROOT of the zip / repo (not inside a wrapper folder).
+- NEVER commit: node_modules/, .vercel/, .next/, dist/, .env
+- Prefer git push to CAPSTILLER/caps-apps over zip force-replace.
+- Cap imports the GitHub repo in Vercel and adds domain capsapps.gearup.wtf himself.

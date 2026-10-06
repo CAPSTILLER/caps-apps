@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>CAP Apps</title>
+  <meta name="description" content="Cap's web apps in one place. Tap an icon to open it." />
+  <meta name="theme-color" content="#c9a227" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="CAP Apps" />
+  <meta name="application-name" content="CAP Apps" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="CAP Apps" />
+  <meta property="og:description" content="Cap's web apps in one place." />
+  <meta property="og:image" content="/icon-512.png" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <section class="shell">
+      <header class="header">
+        <h1 class="pid-title">CAP Apps</h1>
+        <p class="subtitle">Tap to open</p>
+      </header>
+      <div id="grid" class="grid" aria-label="App list"></div>
+      <p id="empty" class="empty" hidden></p>
+    </section>
+    <p class="footer">Add to Home Screen for a quick launch. Built for <a href="https://gearup.wtf/" rel="noopener noreferrer">gearup.wtf</a>.</p>
+  </div>
+  <script src="./js/app.js"></script>
+</body>
+</html>

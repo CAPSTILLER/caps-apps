@@ -1,0 +1,20 @@
+{
+  "_readme": "CAP Apps web launcher list. Same order as the Android CAP Apps launcher. Leave icon out for a letter tile. Set enabled false to hide.",
+  "apps": [
+    { "label": "CAPs Mind",   "url": "https://capsmind.gearup.wtf/",   "icon": "capsmind.png" },
+    { "label": "Arena",       "url": "https://arena.gearup.wtf/",      "icon": "arena.png" },
+    { "label": "GEAR Hub",    "url": "https://hub.gearup.wtf/",        "icon": "hub.png" },
+    { "label": "GEAR",        "url": "https://landonthis.gearup.wtf/", "icon": "landonthis.png" },
+    { "label": "Wash yo Apps", "url": "https://appswipe.gearup.wtf/",  "icon": "appswipe.png" },
+    { "label": "XcommuniCAP", "url": "https://xcap.gearup.wtf/",       "icon": "xcap.png" },
+    { "label": "Reclaim Bay", "url": "https://claim.gearup.wtf/" },
+    { "label": "My Wally",    "url": "https://mywally.gearup.wtf/",    "icon": "mywally.png" },
+    { "label": "Hotdogu",     "url": "https://hotdogu.gearup.wtf/",    "icon": "hotdogu.png" },
+    { "label": "Read it",     "url": "https://readit.gearup.wtf/",     "icon": "readit.png" },
+    { "label": "99 Audio",    "url": "https://99audio.gearup.wtf/",    "icon": "99audio.png" },
+    { "label": "My Tuner",    "url": "https://mytuner.gearup.wtf/",    "icon": "mytuner.png" },
+    { "label": "CAPs Garage", "url": "https://capsgarage.gearup.wtf/" },
+    { "label": "CAPdropper",  "url": "https://capdropper.gearup.wtf/" },
+    { "label": "GEAR Logos",  "url": "https://svg.gearup.wtf/",        "icon": "svg.png" }
+  ]
+}
