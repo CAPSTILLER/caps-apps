@@ -157,3 +157,37 @@ a { color: inherit; text-decoration: none; }
   color: #3aa0ff;
   font-weight: 700;
 }
+
+/* Gear button + address sheet */
+.header { position: relative; }
+.gear-btn {
+  position: absolute; top: 12px; right: 12px; width: 44px; height: 44px;
+  border-radius: 50%; border: 3px solid #2a6ad6; background: #121018; color: #f0c43a;
+  box-shadow: 0 3px 0 #163a86; display: grid; place-items: center; padding: 0; cursor: pointer;
+}
+.gear-btn svg { width: 28px; height: 28px; filter: drop-shadow(0 0 2px #ff7a18); transition: transform .4s ease; }
+.gear-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #163a86; }
+.gear-btn:active svg, .gear-btn:hover svg { transform: rotate(60deg); }
+.sheet[hidden], .toast[hidden] { display: none; }
+.sheet { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.72); display: flex; align-items: flex-end; justify-content: center; }
+.sheet-panel {
+  width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: #0a0a0c; border: 3px solid #2a6ad6; border-bottom: 0; border-radius: 22px 22px 0 0;
+  padding: 14px 14px calc(20px + env(safe-area-inset-bottom));
+}
+.sheet-head { display: flex; align-items: center; justify-content: space-between; position: sticky; top: -14px; background: #0a0a0c; padding: 4px 0; }
+.sheet-head h2 { margin: 0; color: #f0c43a; font-size: 1.3rem; text-shadow: 0 0 2px #ff7a18, 2px 2px 0 #3a1a00; }
+.sheet-close { width: 40px; height: 40px; border-radius: 12px; border: 2px solid #2a6ad6; background: #121018; color: #f6f1e4; font-size: 24px; line-height: 1; cursor: pointer; }
+.sheet-note { margin: 4px 0 10px; font-size: 12px; color: #c8c0b0; }
+.addr-group h3 { margin: 14px 0 8px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #3aa0ff; }
+.addr-card { border: 2px solid #1a3f8a; border-radius: 14px; background: #121018; padding: 10px 12px; margin-bottom: 8px; }
+.addr-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.addr-top strong { color: #f0c43a; font-size: 14px; }
+.addr-net { font-size: 10px; font-weight: 700; color: #050505; background: #3aa0ff; border-radius: 8px; padding: 2px 6px; }
+.addr-desc { margin: 4px 0 8px; font-size: 12px; line-height: 1.4; color: #c8c0b0; }
+.addr-row { display: flex; align-items: center; gap: 8px; }
+.addr-row code { flex: 1; min-width: 0; font-size: 13px; color: #f6f1e4; }
+.addr-link { font-size: 12px; font-weight: 700; color: #3aa0ff; padding: 10px 4px; }
+.addr-copy { min-width: 74px; min-height: 40px; border-radius: 10px; border: 2px solid #c9a227; background: #f0c43a; color: #1a140e; font: inherit; font-weight: 800; font-size: 13px; cursor: pointer; }
+.addr-copy.ok { background: #2fbf71; border-color: #1f8a50; color: #04140b; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 60; background: #2fbf71; color: #04140b; font-weight: 800; padding: 8px 16px; border-radius: 999px; }

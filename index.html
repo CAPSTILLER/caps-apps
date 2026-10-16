@@ -22,6 +22,7 @@
   <div id="app">
     <section class="shell">
       <header class="header">
+        <button id="gearBtn" class="gear-btn" type="button" aria-label="Contract addresses"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.6 7.6 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.6 7.6 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 1.7-1l2.5 1 2-3.5zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg></button>
         <h1 class="pid-title">CAP Apps</h1>
         <p class="subtitle">Tap to open</p>
       </header>
@@ -30,6 +31,15 @@
     </section>
     <p class="footer">Add to Home Screen for a quick launch. Built for <a href="https://gearup.wtf/" rel="noopener noreferrer">gearup.wtf</a>.</p>
   </div>
+  <div id="addrSheet" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="addrTitle">
+    <div class="sheet-panel">
+      <div class="sheet-head"><h2 id="addrTitle">Addresses</h2><button id="addrClose" class="sheet-close" type="button" aria-label="Close">&times;</button></div>
+      <p class="sheet-note">Tap Copy to grab an address. All on Base.</p>
+      <div id="addrList"></div>
+    </div>
+  </div>
+  <div id="toast" class="toast" hidden>Copied</div>
   <script src="./js/app.js"></script>
+  <script src="./js/contracts.js"></script>
 </body>
 </html>
