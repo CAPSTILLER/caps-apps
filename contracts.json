@@ -60,9 +60,15 @@
       "title": "Waldo / My Wally",
       "items": [
         {
+          "name": "My Wally (MY8)",
+          "address": "0x187a4f47bed10a12d2c12b15457884bfbbecc1ed",
+          "desc": "My Wally — Waldo Studio NFTs (Cap's collection). Owned by the Ledger. Token #1 is minted.",
+          "url": "https://opensea.io/item/base/0x187a4f47bed10a12d2c12b15457884bfbbecc1ed/1"
+        },
+        {
           "name": "The Real Onez (TRO)",
           "address": "0xaf5B502551DBd2DdBDb4aF8BC4CE10C473ddB5AB",
-          "desc": "Real Onez NFT collection My Wally reads for Waldo #8. Not Cap's own contract. The Waldo Studio NFT is not deployed yet."
+          "desc": "Real Onez NFT collection My Wally reads for Waldo #8. Not Cap's own contract."
         },
         {
           "name": "Forlz (FRLZ)",
@@ -105,9 +111,9 @@
           "desc": "Cap's main wallet. Basenames catgod.base.eth and capstiller.base.eth."
         },
         {
-          "name": "Base Trading Wallet",
+          "name": "Bankr Wallet",
           "address": "0x604b2e24df58ef019312b8367af763a7f156bf08",
-          "desc": "Cap's Base trading wallet."
+          "desc": "Cap's wallet tied to Bankr."
         },
         {
           "name": "basecelium.base.eth",
