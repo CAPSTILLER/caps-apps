@@ -33,6 +33,11 @@
           "name": "CAPs Mind Prophecy Tablets",
           "address": "0x43b7d848aa48ef002eb7b7c680e0fbb82bc97f0f",
           "desc": "CapsMindProphecies. Prophecy tablets for CAPs Mind key holders, paid in GEAR (90% treasury, 10% GearVault)."
+        },
+        {
+          "name": "CAPs Rocks",
+          "address": "0x0fa575fd563517549e714acde968051a7310aadb",
+          "desc": "CAPs Rocks: wallet-seeded avatar NFTs forged by burning a Prophecy Tablet; faces/poses saved onchain"
         }
       ]
     },
