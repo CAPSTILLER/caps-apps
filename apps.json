@@ -3,6 +3,7 @@
   "apps": [
     { "label": "CAPs Mind",   "url": "https://capsmind.gearup.wtf/",   "icon": "capsmind.png" },
     { "label": "Arena",       "url": "https://arena.gearup.wtf/",      "icon": "arena.png" },
+    { "label": "Voice Box",   "url": "https://capsapps.gearup.wtf/voicebox", "icon": "voicebox.png" },
     { "label": "GEAR Hub",    "url": "https://hub.gearup.wtf/",        "icon": "hub.png" },
     { "label": "GEAR",        "url": "https://landonthis.gearup.wtf/", "icon": "landonthis.png" },
     { "label": "Wash yo Apps", "url": "https://appswipe.gearup.wtf/",  "icon": "appswipe.png" },

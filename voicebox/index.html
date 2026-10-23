@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Voice Box · CAP Apps</title>
+<meta name="theme-color" content="#c9a227" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="stylesheet" href="/css/styles.css" />
+<style>
+.vb{padding:14px 14px 18px}
+.warn{background:#2a1a00;border:2px solid #ff7a18;border-radius:12px;padding:8px 10px;font-size:12.5px;color:#ffd9a8;margin-bottom:12px}
+.modes{display:flex;gap:6px;margin-bottom:12px}
+.modes button,.presets button{flex:1;background:#111;border:2px solid #1a3f8a;color:#f6f1e4;border-radius:12px;padding:9px 4px;font:700 13px inherit;font-family:inherit}
+.modes button.on,.presets button.on{border-color:#f0c43a;background:#2a2206;color:#f0c43a}
+.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.presets button{font-size:11.5px;padding:8px 2px}
+.presets button span{display:block;font-size:20px}
+#mic{display:block;margin:6px auto 10px;width:150px;height:150px;border-radius:50%;border:5px solid #2a6ad6;background:radial-gradient(#1b2b52,#0a0a0c);color:#f0c43a;font:800 17px inherit;font-family:inherit;box-shadow:0 6px 0 #163a86;touch-action:none;user-select:none;-webkit-user-select:none}
+#mic.live{border-color:#ff3b3b;background:radial-gradient(#5a1010,#140404);color:#fff;box-shadow:0 0 30px #ff3b3b88}
+#viz{width:100%;height:70px;background:#050505;border:2px solid #1a3f8a;border-radius:12px;display:block}
+.meter{height:8px;background:#111;border-radius:6px;margin:8px 0 12px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2ad66a,#f0c43a,#ff3b3b)}
+label.sl{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:6px 0}
+label.sl span{width:78px}label.sl b{width:44px;text-align:right;color:#f0c43a}
+label.sl input{flex:1;accent-color:#f0c43a}
+.status{text-align:center;font-size:12.5px;color:#c8c0b0;min-height:18px;margin:4px 0}
+.clip{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.clip audio{width:100%}
+.clip .row{display:flex;gap:6px}
+.clip .row a,.clip .row button{flex:1;text-align:center;background:#111;border:2px solid #2a6ad6;color:#f6f1e4;border-radius:12px;padding:9px;font:700 13px inherit;font-family:inherit}
+.back{display:inline-block;margin:0 0 6px;font-size:13px;color:#c8c0b0}
+</style>
+</head>
+<body>
+<div id="app">
+<a class="back" href="/">‹ CAP Apps</a>
+<section class="shell">
+<header class="header"><h1 class="pid-title">Voice Box</h1><p class="subtitle">Talk · get twisted</p></header>
+<div class="vb">
+  <div class="warn">🎧 Plug in headphones for Live mode, or the speaker feeds back into the mic. No headphones? Use <b>Record</b> mode. Nothing leaves your phone.</div>
+  <div class="modes"><button id="mLive" class="on">🔴 Live</button><button id="mRec">⏺ Record &amp; play</button></div>
+  <div class="presets" id="presets"></div>
+  <button id="mic" type="button">TAP TO TALK</button>
+  <div class="status" id="status">Tap for on/off · hold to push-to-talk</div>
+  <canvas id="viz" width="600" height="140"></canvas>
+  <div class="meter"><i id="lvl"></i></div>
+  <label class="sl"><span>Pitch</span><input id="sPitch" type="range" min="-12" max="12" step="1" value="0"><b id="vPitch">0</b></label>
+  <label class="sl"><span>Distortion</span><input id="sDist" type="range" min="0" max="100" value="0"><b id="vDist">0</b></label>
+  <label class="sl"><span>Wet mix</span><input id="sWet" type="range" min="0" max="100" value="100"><b id="vWet">100</b></label>
+  <div class="clip" id="clip" hidden></div>
+</div>
+</section>
+</div>
+<script src="/voicebox/voicebox.js"></script>
+</body>
+</html>
