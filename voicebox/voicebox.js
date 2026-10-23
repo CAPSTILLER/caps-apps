@@ -33,7 +33,22 @@ class VoiceFX extends AudioWorkletProcessor {
     return true;}
   tap(d){const N=this.N;let r=this.w-d-1;while(r<0)r+=N;const i0=Math.floor(r),f=r-i0;const a=this.buf[i0%N],b=this.buf[(i0+1)%N];return a+(b-a)*f;}
 }
-registerProcessor('voice-fx',VoiceFX);`;
+registerProcessor('voice-fx',VoiceFX);
+class Gate extends AudioWorkletProcessor {
+  static get parameterDescriptors(){return [{name:'thresh',defaultValue:-42,minValue:-80,maxValue:0}];}
+  constructor(){super();this.env=0;this.g=0;this.hold=0;this.sr=sampleRate;
+    this.att=1-Math.exp(-1/(0.005*sampleRate));this.rel=1-Math.exp(-1/(0.12*sampleRate));
+    this.envA=1-Math.exp(-1/(0.002*sampleRate));this.envR=1-Math.exp(-1/(0.05*sampleRate));this.holdN=Math.floor(0.15*sampleRate);}
+  process(ins,outs,p){const i=ins[0]&&ins[0][0],o=outs[0][0];if(!o)return true;
+    const th=Math.pow(10,p.thresh[0]/20),thClose=th*0.7;
+    for(let n=0;n<o.length;n++){const x=i?i[n]:0,a=Math.abs(x);
+      this.env+=(a-this.env)*(a>this.env?this.envA:this.envR);
+      if(this.env>th)this.hold=this.holdN;else if(this.env<thClose&&this.hold>0)this.hold--;
+      const tgt=this.hold>0?1:0;this.g+=(tgt-this.g)*(tgt>this.g?this.att:this.rel);
+      o[n]=x*this.g;}
+    for(let c=1;c<outs[0].length;c++)outs[0][c].set(o);return true;}
+}
+registerProcessor('gate',Gate);`;
 
 const PRESETS = {
   clean:  {e:"🙂",n:"Clean",  pitch:0,dist:0,wet:100},
@@ -47,16 +62,21 @@ const PRESETS = {
   layer0: {e:"🧠",n:"Layer Zero AI",pitch:-3,dist:20,wet:100,ringFreq:90,ringMix:.7,bits:5,down:4,delay:.09,fb:.25},
 };
 const $=id=>document.getElementById(id);
-let ctx,node,src,stream,dry,wet,shaper,filt,delay,fb,delayWet,conv,convWet,analyser,out,recDest,rec,chunks=[];
+let ctx,gate,hp,inGain,comp,preAn,node,src,stream,dry,wet,shaper,filt,delay,fb,delayWet,conv,convWet,analyser,out,recDest,rec,chunks=[];
 let cur="robot",mode="live",on=false,rafId;
 
-function curve(amt){const k=amt*1.5,n=1024,c=new Float32Array(n);for(let i=0;i<n;i++){const x=i*2/n-1;c[i]=k?((1+k)*x/(1+k*Math.abs(x))):x;}return c;}
+function curve(amt){const k=amt*1.5,n=1025,c=new Float32Array(n);for(let i=0;i<n;i++){const x=i*2/(n-1)-1;c[i]=k?((1+k)*x/(1+k*Math.abs(x))):x;}return c;}
 function impulse(sec){const len=ctx.sampleRate*sec,b=ctx.createBuffer(2,len,ctx.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);}return b;}
 
 async function build(){
   ctx=new (window.AudioContext||window.webkitAudioContext)({latencyHint:"interactive"});
   const url=URL.createObjectURL(new Blob([WORKLET],{type:"application/javascript"}));
   await ctx.audioWorklet.addModule(url);
+  gate=new AudioWorkletNode(ctx,"gate",{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});
+  hp=ctx.createBiquadFilter();hp.type="highpass";hp.frequency.value=100;hp.Q.value=.7;
+  inGain=ctx.createGain();inGain.gain.value=.8;preAn=ctx.createAnalyser();preAn.fftSize=512;
+  comp=ctx.createDynamicsCompressor();comp.threshold.value=-20;comp.knee.value=6;comp.ratio.value=8;comp.attack.value=.003;comp.release.value=.15;
+  hp.connect(inGain);inGain.connect(preAn);inGain.connect(gate);
   node=new AudioWorkletNode(ctx,"voice-fx",{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});
   shaper=ctx.createWaveShaper();shaper.oversample="2x";
   filt=ctx.createBiquadFilter();
@@ -68,10 +88,10 @@ async function build(){
   node.connect(shaper);shaper.connect(filt);filt.connect(wet);
   filt.connect(delay);delay.connect(fb);fb.connect(delay);delay.connect(delayWet);delayWet.connect(wet);
   filt.connect(conv);conv.connect(convWet);convWet.connect(wet);
-  wet.connect(out);dry.connect(out);out.connect(analyser);out.connect(recDest);
+  gate.connect(node);gate.connect(dry);wet.connect(out);dry.connect(out);out.connect(comp);comp.connect(analyser);comp.connect(recDest);
 }
 function apply(){
-  if(!ctx)return;const p=PRESETS[cur],t=ctx.currentTime,P=node.parameters;
+  if(!ctx)return;gate.parameters.get("thresh").value=sensDb();hp.frequency.value=nf?100:20;const p=PRESETS[cur],t=ctx.currentTime,P=node.parameters;
   P.get("pitch").setTargetAtTime(Math.pow(2,+$("sPitch").value/12),t,.02);
   P.get("ringFreq").value=p.ringFreq||0;P.get("ringMix").value=p.ringMix||0;
   P.get("vibRate").value=p.vibRate||0;P.get("vibDepth").value=p.vibDepth||0;
@@ -93,10 +113,10 @@ async function start(){
   if(on)return;on=true;$("mic").classList.add("live");$("mic").textContent=mode==="live"?"LIVE…":"REC…";
   try{
     if(!ctx)await build();await ctx.resume();apply();
-    if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,latency:0,channelCount:1}});
-    src=ctx.createMediaStreamSource(stream);src.connect(node);src.connect(dry);
-    try{out.disconnect(ctx.destination);}catch(e){}
-    if(mode==="live")out.connect(ctx.destination);
+    if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:nf&&ECHO,noiseSuppression:nf,autoGainControl:false,latency:0,channelCount:1}});
+    src=ctx.createMediaStreamSource(stream);src.connect(hp);
+    try{comp.disconnect(ctx.destination);}catch(e){}
+    if(mode==="live")comp.connect(ctx.destination);
     else{chunks=[];const mt=["audio/webm;codecs=opus","audio/webm","audio/ogg","audio/mp4"].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||"";
       rec=new MediaRecorder(recDest.stream,mt?{mimeType:mt}:{});rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);rec.onstop=showClip;rec.start(250);}
     const lat=((ctx.baseLatency||0)+(ctx.outputLatency||0))*1000;
@@ -125,14 +145,21 @@ function showClip(){
   c.append(row);$("status").textContent="Clip ready · play, download or share";a.play().catch(()=>{});
 }
 function loop(){
-  const cv=$("viz"),g=cv.getContext("2d"),d=new Float32Array(analyser.fftSize);
-  const draw=()=>{analyser.getFloatTimeDomainData(d);let s=0;for(const v of d)s+=v*v;const rms=Math.sqrt(s/d.length);
-    $("lvl").style.width=Math.min(100,rms*400)+"%";
+  const cv=$("viz"),g=cv.getContext("2d"),d=new Float32Array(analyser.fftSize),q=new Float32Array(preAn.fftSize);
+  const draw=()=>{analyser.getFloatTimeDomainData(d);preAn.getFloatTimeDomainData(q);let pk=0;for(const v of q)pk=Math.max(pk,Math.abs(v));
+    const db=20*Math.log10(pk+1e-9);$("lvl").style.width=dbPct(db)+"%";$("lvl").classList.toggle("open",db>sensDb());
     g.fillStyle="#050505";g.fillRect(0,0,cv.width,cv.height);g.strokeStyle=on?"#f0c43a":"#2a6ad6";g.lineWidth=3;g.beginPath();
     for(let i=0;i<d.length;i++){const x=i/d.length*cv.width,y=cv.height/2+d[i]*cv.height*1.2;i?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();
     if(on)rafId=requestAnimationFrame(draw);};draw();
 }
 // ---------- UI ----------
+const ECHO=false;let nf=localStorage.getItem("vb_nf")!=="0";
+const dbPct=db=>Math.max(0,Math.min(100,(db+80)/80*100));
+function sensDb(){return -70+ (100-+$("sSens").value)*0.5;} // sens 0..100 -> -20..-70 dB
+$("sSens").value=localStorage.getItem("vb_sens")||"44";
+function syncSens(){localStorage.setItem("vb_sens",$("sSens").value);$("vSens").textContent=$("sSens").value;$("thr").style.left=dbPct(sensDb())+"%";if(ctx)gate.parameters.get("thresh").value=sensDb();}
+$("sSens").addEventListener("input",syncSens);syncSens();
+$("nf").checked=nf;$("nf").onchange=()=>{nf=$("nf").checked;localStorage.setItem("vb_nf",nf?"1":"0");if(on){stop();start();}else apply();};
 for(const[k,p]of Object.entries(PRESETS)){const b=document.createElement("button");b.dataset.k=k;b.innerHTML=`<span>${p.e}</span>${p.n}`;b.onclick=()=>setPreset(k);$("presets").append(b);}
 ["sPitch","sDist","sWet"].forEach(id=>$(id).addEventListener("input",sync));
 function setMode(m){if(on)stop();mode=m;$("mLive").classList.toggle("on",m==="live");$("mRec").classList.toggle("on",m==="rec");
@@ -145,5 +172,5 @@ mic.addEventListener("pointerdown",e=>{e.preventDefault();downAt=Date.now();wasO
 mic.addEventListener("pointerup",()=>{const held=Date.now()-downAt>350;if(wasOn)stop();else if(held)stop();});
 mic.addEventListener("contextmenu",e=>e.preventDefault());
 setPreset("robot");
-window.__vb={get ctx(){return ctx},get on(){return on}};
+window.__vb={get gate(){return gate},get hp(){return hp},outRms(){const d=new Float32Array(analyser.fftSize),q=new Float32Array(preAn.fftSize);analyser.getFloatTimeDomainData(d);let s=0;for(const v of d)s+=v*v;return Math.sqrt(s/d.length)},get gateDb(){return sensDb()},get ctx(){return ctx},get on(){return on}};
 })();

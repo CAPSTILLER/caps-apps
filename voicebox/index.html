@@ -20,7 +20,9 @@
 #mic.live{border-color:#ff3b3b;background:radial-gradient(#5a1010,#140404);color:#fff;box-shadow:0 0 30px #ff3b3b88}
 #viz{width:100%;height:70px;background:#050505;border:2px solid #1a3f8a;border-radius:12px;display:block}
 .meter{height:8px;background:#111;border-radius:6px;margin:8px 0 12px;overflow:hidden}
-.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2ad66a,#f0c43a,#ff3b3b)}
+.meter{position:relative;height:12px}.meter u{position:absolute;top:-2px;bottom:-2px;width:3px;background:#fff;box-shadow:0 0 4px #fff}.meter i.open{opacity:1}
+.tog{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:8px 0}.tog input{width:20px;height:20px;accent-color:#f0c43a}
+.meter i{opacity:.55;display:block;height:100%;width:0;background:linear-gradient(90deg,#2ad66a,#f0c43a,#ff3b3b)}
 label.sl{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:6px 0}
 label.sl span{width:78px}label.sl b{width:44px;text-align:right;color:#f0c43a}
 label.sl input{flex:1;accent-color:#f0c43a}
@@ -44,7 +46,9 @@ label.sl input{flex:1;accent-color:#f0c43a}
   <button id="mic" type="button">TAP TO TALK</button>
   <div class="status" id="status">Tap for on/off · hold to push-to-talk</div>
   <canvas id="viz" width="600" height="140"></canvas>
-  <div class="meter"><i id="lvl"></i></div>
+  <div class="meter"><i id="lvl"></i><u id="thr"></u></div>
+  <label class="sl"><span>Sensitivity</span><input id="sSens" type="range" min="0" max="100" value="44"><b id="vSens">44</b></label>
+  <label class="tog"><input id="nf" type="checkbox" checked> Noise filter (phone noise suppression + rumble cut)</label>
   <label class="sl"><span>Pitch</span><input id="sPitch" type="range" min="-12" max="12" step="1" value="0"><b id="vPitch">0</b></label>
   <label class="sl"><span>Distortion</span><input id="sDist" type="range" min="0" max="100" value="0"><b id="vDist">0</b></label>
   <label class="sl"><span>Wet mix</span><input id="sWet" type="range" min="0" max="100" value="100"><b id="vWet">100</b></label>
