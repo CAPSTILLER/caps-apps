@@ -63,7 +63,7 @@ const PRESETS = {
 };
 const $=id=>document.getElementById(id);
 let ctx,gate,hp,inGain,comp,preAn,node,src,stream,dry,wet,shaper,filt,delay,fb,delayWet,conv,convWet,analyser,out,recDest,rec,chunks=[];
-let cur="robot",mode="live",on=false,rafId;
+let master,hs,howlT=0,headOK=false,cur="robot",mode="rec",on=false,rafId;
 
 function curve(amt){const k=amt*1.5,n=1025,c=new Float32Array(n);for(let i=0;i<n;i++){const x=i*2/(n-1)-1;c[i]=k?((1+k)*x/(1+k*Math.abs(x))):x;}return c;}
 function impulse(sec){const len=ctx.sampleRate*sec,b=ctx.createBuffer(2,len,ctx.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);}return b;}
@@ -84,7 +84,7 @@ async function build(){
   conv=ctx.createConvolver();conv.buffer=impulse(1.8);convWet=ctx.createGain();
   dry=ctx.createGain();wet=ctx.createGain();out=ctx.createGain();
   analyser=ctx.createAnalyser();analyser.fftSize=1024;
-  recDest=ctx.createMediaStreamDestination();
+  recDest=ctx.createMediaStreamDestination();master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
   node.connect(shaper);shaper.connect(filt);filt.connect(wet);
   filt.connect(delay);delay.connect(fb);fb.connect(delay);delay.connect(delayWet);delayWet.connect(wet);
   filt.connect(conv);conv.connect(convWet);convWet.connect(wet);
@@ -113,10 +113,10 @@ async function start(){
   if(on)return;on=true;$("mic").classList.add("live");$("mic").textContent=mode==="live"?"LIVE…":"REC…";
   try{
     if(!ctx)await build();await ctx.resume();apply();
-    if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:nf&&ECHO,noiseSuppression:nf,autoGainControl:false,latency:0,channelCount:1}});
+    if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:mode==="live"&&!$("lowlat").checked,noiseSuppression:nf,autoGainControl:false,latency:0,channelCount:1}});
     src=ctx.createMediaStreamSource(stream);src.connect(hp);
-    try{comp.disconnect(ctx.destination);}catch(e){}
-    if(mode==="live")comp.connect(ctx.destination);
+    try{comp.disconnect(master);}catch(e){}
+    if(mode==="live"){comp.connect(master);master.gain.cancelScheduledValues(0);master.gain.setTargetAtTime(vol(),ctx.currentTime,.05);howlT=0;}
     else{chunks=[];const mt=["audio/webm;codecs=opus","audio/webm","audio/ogg","audio/mp4"].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||"";
       rec=new MediaRecorder(recDest.stream,mt?{mimeType:mt}:{});rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);rec.onstop=showClip;rec.start(250);}
     const lat=((ctx.baseLatency||0)+(ctx.outputLatency||0))*1000;
@@ -125,7 +125,7 @@ async function start(){
   }catch(e){stop();$("status").textContent="Mic blocked: "+(e.message||e.name)+". Allow the microphone and try again.";}
 }
 function stop(){
-  if(!on)return;on=false;$("mic").classList.remove("live");$("mic").textContent="TAP TO TALK";
+  if(!on)return;on=false;if(master)master.gain.value=0;$("mic").classList.remove("live");$("mic").textContent="TAP TO TALK";
   if(src){try{src.disconnect();}catch(e){}src=null;}
   if(rec&&rec.state!=="inactive")rec.stop();
   if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
@@ -147,11 +147,24 @@ function showClip(){
 function loop(){
   const cv=$("viz"),g=cv.getContext("2d"),d=new Float32Array(analyser.fftSize),q=new Float32Array(preAn.fftSize);
   const draw=()=>{analyser.getFloatTimeDomainData(d);preAn.getFloatTimeDomainData(q);let pk=0;for(const v of q)pk=Math.max(pk,Math.abs(v));
-    const db=20*Math.log10(pk+1e-9);$("lvl").style.width=dbPct(db)+"%";$("lvl").classList.toggle("open",db>sensDb());
+    const db=20*Math.log10(pk+1e-9);$("lvl").style.width=dbPct(db)+"%";if(mode==="live"&&on)howlCheck(db);$("lvl").classList.toggle("open",db>sensDb());
     g.fillStyle="#050505";g.fillRect(0,0,cv.width,cv.height);g.strokeStyle=on?"#f0c43a":"#2a6ad6";g.lineWidth=3;g.beginPath();
     for(let i=0;i<d.length;i++){const x=i/d.length*cv.width,y=cv.height/2+d[i]*cv.height*1.2;i?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();
     if(on)rafId=requestAnimationFrame(draw);};draw();
 }
+function vol(){return 0.6*(+$("sVol").value/100);}
+function howlCheck(inDb){
+  if(!hs)hs=new Float32Array(analyser.frequencyBinCount);analyser.getFloatFrequencyData(hs);
+  let pk=-200,pi=0,sum=0;for(let i=4;i<hs.length;i++){if(hs[i]>pk){pk=hs[i];pi=i;}sum+=hs[i];}
+  const avg=sum/(hs.length-4),narrow=pk-avg>40&&pk>-30;
+  if(narrow&&inDb>-25)howlT+=16;else howlT=Math.max(0,howlT-32);
+  if(howlT>=300)feedback();
+}
+function feedback(){master.gain.cancelScheduledValues(0);master.gain.value=0;stop();setMode("rec");headOK=false;
+  $("status").textContent="⚠️ Feedback detected — use headphones or Record & play";$("status").classList.add("bad");window.__vbFeedback=(window.__vbFeedback||0)+1;}
+$("sVol").value=localStorage.getItem("vb_vol")||"80";
+$("sVol").addEventListener("input",()=>{localStorage.setItem("vb_vol",$("sVol").value);$("vVol").textContent=$("sVol").value;if(on&&mode==="live")master.gain.setTargetAtTime(vol(),ctx.currentTime,.05);});$("vVol").textContent=$("sVol").value;
+$("lowlat").onchange=()=>{if(on){stop();start();}};
 // ---------- UI ----------
 const ECHO=false;let nf=localStorage.getItem("vb_nf")!=="0";
 const dbPct=db=>Math.max(0,Math.min(100,(db+80)/80*100));
@@ -162,15 +175,15 @@ $("sSens").addEventListener("input",syncSens);syncSens();
 $("nf").checked=nf;$("nf").onchange=()=>{nf=$("nf").checked;localStorage.setItem("vb_nf",nf?"1":"0");if(on){stop();start();}else apply();};
 for(const[k,p]of Object.entries(PRESETS)){const b=document.createElement("button");b.dataset.k=k;b.innerHTML=`<span>${p.e}</span>${p.n}`;b.onclick=()=>setPreset(k);$("presets").append(b);}
 ["sPitch","sDist","sWet"].forEach(id=>$(id).addEventListener("input",sync));
-function setMode(m){if(on)stop();mode=m;$("mLive").classList.toggle("on",m==="live");$("mRec").classList.toggle("on",m==="rec");
+function setMode(m){if(m==="live"&&!headOK){$("hp").hidden=false;return;}if(on)stop();mode=m;$("status").classList.remove("bad");$("liveOpts").hidden=m!=="live";$("mLive").classList.toggle("on",m==="live");$("mRec").classList.toggle("on",m==="rec");
   $("status").textContent=m==="live"?"Tap for on/off · hold to push-to-talk":"Tap to record, tap again to hear it";}
-$("mLive").onclick=()=>setMode("live");$("mRec").onclick=()=>setMode("rec");
+$("mLive").onclick=()=>setMode("live");$("hpYes").onclick=()=>{headOK=true;$("hp").hidden=true;setMode("live");};$("hpNo").onclick=()=>{$("hp").hidden=true;};$("mRec").onclick=()=>setMode("rec");
 // tap = toggle; hold (>350ms) = push-to-talk
 let downAt=0,wasOn=false;
 const mic=$("mic");
 mic.addEventListener("pointerdown",e=>{e.preventDefault();downAt=Date.now();wasOn=on;if(!on)start();});
-mic.addEventListener("pointerup",()=>{const held=Date.now()-downAt>350;if(wasOn)stop();else if(held)stop();});
+mic.addEventListener("pointerup",()=>{const held=Date.now()-downAt>350;if(wasOn)stop();else if(held||(mode==="live"&&$("ptt").checked))stop();});
 mic.addEventListener("contextmenu",e=>e.preventDefault());
-setPreset("robot");
-window.__vb={get gate(){return gate},get hp(){return hp},outRms(){const d=new Float32Array(analyser.fftSize),q=new Float32Array(preAn.fftSize);analyser.getFloatTimeDomainData(d);let s=0;for(const v of d)s+=v*v;return Math.sqrt(s/d.length)},get gateDb(){return sensDb()},get ctx(){return ctx},get on(){return on}};
+setPreset("robot");setMode("rec");
+window.__vb={get master(){return master},get mode(){return mode},get gate(){return gate},get hp(){return hp},outRms(){const d=new Float32Array(analyser.fftSize),q=new Float32Array(preAn.fftSize);analyser.getFloatTimeDomainData(d);let s=0;for(const v of d)s+=v*v;return Math.sqrt(s/d.length)},get gateDb(){return sensDb()},get ctx(){return ctx},get on(){return on}};
 })();

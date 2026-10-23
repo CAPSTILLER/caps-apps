@@ -26,6 +26,7 @@
 label.sl{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:6px 0}
 label.sl span{width:78px}label.sl b{width:44px;text-align:right;color:#f0c43a}
 label.sl input{flex:1;accent-color:#f0c43a}
+.status.bad{color:#ff6b6b;font-weight:800}
 .status{text-align:center;font-size:12.5px;color:#c8c0b0;min-height:18px;margin:4px 0}
 .clip{margin-top:10px;display:flex;flex-direction:column;gap:8px}
 .clip audio{width:100%}
@@ -40,8 +41,15 @@ label.sl input{flex:1;accent-color:#f0c43a}
 <section class="shell">
 <header class="header"><h1 class="pid-title">Voice Box</h1><p class="subtitle">Talk · get twisted</p></header>
 <div class="vb">
-  <div class="warn">🎧 Plug in headphones for Live mode, or the speaker feeds back into the mic. No headphones? Use <b>Record</b> mode. Nothing leaves your phone.</div>
-  <div class="modes"><button id="mLive" class="on">🔴 Live</button><button id="mRec">⏺ Record &amp; play</button></div>
+  <div class="warn">🎧 Live mode needs headphones or the speaker howls. No headphones? <b>Record &amp; play</b> is safe. Nothing leaves your phone.</div>
+  <div class="modes"><button id="mRec" class="on">⏺ Record &amp; play</button><button id="mLive">🎧 Live</button></div>
+  <div class="warn" id="hp" hidden>Live plays your voice out instantly. On a phone speaker that howls. <b>Headphones in?</b>
+    <div class="modes" style="margin:8px 0 0"><button id="hpYes" class="on">🎧 I'm wearing headphones</button><button id="hpNo">Cancel</button></div></div>
+  <div id="liveOpts" hidden>
+  <label class="sl"><span>Volume</span><input id="sVol" type="range" min="0" max="100" value="80"><b id="vVol">80</b></label>
+  <label class="tog"><input id="ptt" type="checkbox"> Push-to-talk only (sound stops when you let go)</label>
+  <label class="tog"><input id="lowlat" type="checkbox"> Low latency (headphones) — turns echo cancel off</label>
+  </div>
   <div class="presets" id="presets"></div>
   <button id="mic" type="button">TAP TO TALK</button>
   <div class="status" id="status">Tap for on/off · hold to push-to-talk</div>
