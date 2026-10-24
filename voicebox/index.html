@@ -40,6 +40,13 @@ label.sl input{flex:1;accent-color:#f0c43a}
 .tog{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:9px 0}.tog input{width:20px;height:20px;accent-color:#f0c43a;flex:none}
 .liveonly{display:none}body.is-live .liveonly{display:block}body.is-live label.liveonly{display:flex}
 .outdev{font-size:12.5px;color:#c8c0b0;margin:2px 0 6px}.outdev #outLbl{font-weight:700}.outdev select{width:100%;margin-top:6px;background:#111;color:#f6f1e4;border:2px solid #2a6ad6;border-radius:10px;padding:8px;font:700 14px inherit}
+.pads{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}
+.pads button{background:#160b22;border:2px solid #6b2fb3;color:#f6f1e4;border-radius:12px;min-height:62px;padding:6px 2px;font-weight:700;font-size:11.5px}
+.pads button span{display:block;font-size:22px}.pads button.on{border-color:#ff7a18;background:#3a1a00;box-shadow:0 0 12px #ff7a1888}
+.row2{display:flex;align-items:center;gap:8px}.row2 button{background:#111;border:2px solid #ff3b3b;color:#ff8080;border-radius:10px;padding:8px 10px;font-weight:800}
+details.spooky{border-color:#6b2fb3}details.spooky summary{color:#ff9a3c}
+.mixbtn{display:block;width:100%;margin:0 0 14px;background:linear-gradient(135deg,#3a1a00,#160b22);border:3px solid #ff7a18;color:#ffb366;border-radius:16px;padding:14px;font-weight:800;font-size:18px}
+.mixbtn small{display:block;font-size:12px;color:#c8c0b0;font-weight:700}
 h2.ct{font-size:16px;margin:4px 0 8px;color:#f0c43a}
 #clips{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 #clips li{display:flex;align-items:center;gap:8px;background:#111;border:2px solid #1a3f8a;border-radius:12px;padding:6px}
@@ -91,6 +98,12 @@ body.noscroll{overflow:hidden}
     <label class="tog"><input id="ptt" type="checkbox"> Live: hold-to-talk only</label>
     <label class="tog"><input id="lowlat" type="checkbox"> Live: low delay for earbuds (turns echo cancel off)</label>
   </details>
+  <details class="more spooky" id="sfxBox" open><summary>🎃 Spooky sounds</summary>
+    <p class="hint">Tap to play — in Live they mix into your output and into “Record this”. ⟳ = loops, tap again to stop.</p>
+    <div class="pads" id="pads"></div>
+    <div class="row2"><label class="sl" style="flex:1"><span>SFX vol</span><input id="sfxVol" type="range" min="0" max="100" value="80"></label><button id="sfxStop" type="button">■ Stop all</button></div>
+  </details>
+  <button id="openMix" class="mixbtn" type="button">🎛 Mix maker <small>layer clips + spooky sounds</small></button>
   <h2 class="ct">My clips</h2>
   <p class="hint" id="noClips">Your recordings save here on this phone. Tap Edit to cut and add effects.</p>
   <ul id="clips"></ul>
@@ -116,6 +129,9 @@ body.noscroll{overflow:hidden}
   <p class="hint">Everything stays on this phone. MP3 uses LAME (LGPL) via lamejs.</p>
 </div>
 <div id="toast" hidden></div>
+<div id="mx" hidden></div>
+<script src="/voicebox/sfx.js"></script>
 <script src="/voicebox/voicebox.js"></script>
+<script src="/voicebox/mixer.js"></script>
 </body>
 </html>

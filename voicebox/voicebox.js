@@ -83,7 +83,7 @@ function makeChain(c){
   return ch;
 }
 function applyChain(ch,st){
-  const p=PRESETS[st.preset]||PRESETS.clean,P=ch.fx.parameters,t=ch.c.currentTime;
+  const p=st.p||PRESETS[st.preset]||PRESETS.clean,P=ch.fx.parameters,t=ch.c.currentTime;
   P.get("pitch").setValueAtTime(Math.pow(2,st.pitch/12),t);
   P.get("ringFreq").setValueAtTime(p.ringFreq||0,t);P.get("ringMix").setValueAtTime(p.ringMix||0,t);
   P.get("vibRate").setValueAtTime(p.vibRate||0,t);P.get("vibDepth").setValueAtTime(p.vibDepth||0,t);
@@ -132,7 +132,7 @@ async function toMp3(b){
 
 // ---------- IndexedDB clip store ----------
 let dbP;
-function db(){return dbP||(dbP=new Promise((res,rej)=>{const r=indexedDB.open("voicebox",1);r.onupgradeneeded=()=>r.result.createObjectStore("clips",{keyPath:"id"});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}));}
+function db(){return dbP||(dbP=new Promise((res,rej)=>{const r=indexedDB.open("voicebox",2);r.onupgradeneeded=()=>{const d=r.result;for(const n of["clips","mixes"])if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:"id"});};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}));}
 async function tx(mode,fn){const d=await db();return new Promise((res,rej)=>{const t=d.transaction("clips",mode),s=t.objectStore("clips");const r=fn(s);t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error);});}
 const putClip=c=>tx("readwrite",s=>s.put(c));
 const getClip=id=>tx("readonly",s=>s.get(id));
@@ -156,6 +156,7 @@ async function build(){
   dryDest=c.createMediaStreamDestination();wetDest=c.createMediaStreamDestination();
   hp.connect(inGain);inGain.connect(preAn);inGain.connect(gate);gate.connect(chain.input);gate.connect(dryDest);
   chain.output.connect(analyser);chain.output.connect(wetDest);chain.output.connect(master);
+  sfxBus().connect(wetDest);sfxBus().connect(analyser);
 }
 function apply(){if(!chain)return;applyChain(chain,st());gate.parameters.get("thresh").value=sensDb();hp.frequency.value=$("nf").checked?100:20;
   if(on&&mode==="live"&&ctx.currentTime>duckUntil)master.gain.setTargetAtTime(vol(),ctx.currentTime,.05);}
@@ -262,6 +263,18 @@ $("outSel").addEventListener("change",async e=>{const v=e.target.value;
   if(v==="__pick"){try{const d=await navigator.mediaDevices.selectAudioOutput();await setSink(d.deviceId);}catch(err){refreshOutputs();}return;}
   if(v!=="__x")setSink(v);});
 if(navigator.mediaDevices&&navigator.mediaDevices.addEventListener)navigator.mediaDevices.addEventListener("devicechange",refreshOutputs);
+// ---------- spooky soundboard ----------
+let sfxG,sfxVoices=[];
+function sfxBus(){const c=getCtx();if(!sfxG){sfxG=c.createGain();sfxG.gain.value=.8;sfxG.connect(c.destination);}return sfxG;}
+async function playSfx(k,btn){const c=getCtx();await c.resume();const S=window.VBSFX;
+  if(S.list[k].loop){const ex=sfxVoices.find(v=>v.k===k);if(ex){ex.s.stop();return;}}
+  const s=c.createBufferSource();s.buffer=S.buffer(k);s.loop=!!S.list[k].loop;s.connect(sfxBus());s.start();
+  const v={k,s};sfxVoices.push(v);if(btn)btn.classList.add("on");
+  s.onended=()=>{sfxVoices=sfxVoices.filter(x=>x!==v);if(btn&&!sfxVoices.some(x=>x.k===k))btn.classList.remove("on");};window.__vbSfx=(window.__vbSfx||0)+1;}
+function stopSfx(){for(const v of sfxVoices.slice())v.s.stop();}
+for(const[k,x]of Object.entries(window.VBSFX.list)){const b=document.createElement("button");b.dataset.sfx=k;b.innerHTML=`<span>${x.e}</span>${x.n}${x.loop?" ⟳":""}`;b.onclick=()=>playSfx(k,b);$("pads").append(b);}
+$("sfxStop").onclick=stopSfx;
+$("sfxVol").addEventListener("input",()=>{sfxBus().gain.value=+$("sfxVol").value/100;});
 // ---------- main UI ----------
 for(const[k,p]of Object.entries(PRESETS)){const b=document.createElement("button");b.dataset.k=k;b.innerHTML=`<span>${p.e}</span>${p.n}`;b.onclick=()=>setPreset(k);$("presets").append(b);}
 function setPreset(k){cur=k;localStorage.setItem("vb_preset",k);const p=PRESETS[k];$("sPitch").value=p.pitch;$("sDist").value=p.dist;$("sWet").value=p.wet;
@@ -363,8 +376,9 @@ async function edPlay(){if(edSrc){edStop();return;}const c=getCtx();await c.resu
   const tick=()=>{E.ph=Math.min(z,a+(c.currentTime-t0));edDraw();if(edSrc)edRaf=requestAnimationFrame(tick);};tick();}
 async function edSave(asNew){edStop();const c=asNew?{...E.clip,id:"c"+Date.now(),created:Date.now(),name:E.clip.name+" (edit)"}:E.clip;
   c.audio=toWav(E.work);c.dry=toWav(E.dry);c.dur=dur();await putClip(c);E.clip=c;E.dirty=false;$("edName").textContent=c.name;await renderList(c.id);toast(asNew?"Saved as new clip ✓":"Saved ✓");}
-async function edExport(kind){edStop();toast(kind==="mp3"?"Making MP3…":"Making WAV…");
-  const blob=kind==="mp3"?await toMp3(E.work):toWav(E.work);const name=(E.clip.name.replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"-")||"voicebox")+"."+kind;
+async function edExport(kind){edStop();return exportBuf(E.work,E.clip.name,kind);}
+async function exportBuf(buf,nm,kind){toast(kind==="mp3"?"Making MP3…":"Making WAV…");
+  const blob=kind==="mp3"?await toMp3(buf):toWav(buf);const name=(nm.replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"-")||"voicebox")+"."+kind;
   window.__vbLastExport=blob;const file=new File([blob],name,{type:blob.type});
   if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:"Voice Box"});toast("Shared ✓");return;}catch(e){if(e.name==="AbortError")return;}}
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();a.remove();toast("Downloaded "+name);}
@@ -379,5 +393,6 @@ $("edMp3").onclick=()=>edExport("mp3");$("edWav").onclick=()=>edExport("wav");
 addEventListener("resize",()=>{if(!$("ed").hidden)edDraw();});
 
 setPreset(PRESETS[cur]?cur:"robot");setMode("rec");renderList();refreshOutputs();
+window.VB={PRESETS,renderFx,toWav,toMp3,decode,putClip,getClip,allClips,renderList,getCtx,newBuf,fmt,toast,db,exportBuf,stopSfx,stopMain:()=>stop()};
 window.__vb={refreshOutputs,get sinkId(){return sinkId},setPreset:k=>setPreset(k),get ctx(){return ctx},get on(){return on},get mode(){return mode},get master(){return master},get hp(){return hp},get E(){return E},allClips,toMp3};
 })();
