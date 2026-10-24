@@ -152,7 +152,7 @@ async function build(){
   hp=c.createBiquadFilter();hp.type="highpass";hp.frequency.value=100;
   inGain=c.createGain();inGain.gain.value=.8;preAn=c.createAnalyser();preAn.fftSize=512;
   chain=makeChain(c);analyser=c.createAnalyser();analyser.fftSize=2048;
-  master=c.createGain();master.gain.value=0;master.connect(c.destination);
+  master=c.createGain();master.gain.value=0;routeOut();
   dryDest=c.createMediaStreamDestination();wetDest=c.createMediaStreamDestination();
   hp.connect(inGain);inGain.connect(preAn);inGain.connect(gate);gate.connect(chain.input);gate.connect(dryDest);
   chain.output.connect(analyser);chain.output.connect(wetDest);chain.output.connect(master);
@@ -167,6 +167,7 @@ async function start(){
     stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:mode==="live"?!$("lowlat").checked:false,noiseSuppression:nf,autoGainControl:false,latency:0,channelCount:1}});
     if(!on){stream.getTracks().forEach(t=>t.stop());return;}
     src=ctx.createMediaStreamSource(stream);src.connect(hp);
+    if(sinkId&&ctxSink()&&ctx.sinkId!==sinkId)ctx.setSinkId(sinkId).catch(()=>{});refreshOutputs();
     master.gain.cancelScheduledValues(0);master.gain.value=0;
     if(mode==="live"){master.gain.setTargetAtTime(vol(),ctx.currentTime,.05);howlT=0;}
     else startRec();
@@ -227,6 +228,40 @@ function setMic(){const m=$("mic");m.classList.toggle("live",on);m.classList.tog
   m.innerHTML=mode==="rec"?(recs?'<span>■</span>STOP<small id="recTime">0:00.0</small>':'<span>●</span>RECORD'):(on?'<span>■</span>STOP LIVE':'<span>🎙</span>GO LIVE');
   $("liveRec").hidden=!(mode==="live"&&on);$("liveRec").textContent=recs?"■ Stop recording":"● Record this";$("liveRec").classList.toggle("rec",!!recs);}
 
+// ---------- output device ----------
+let outEl=null,outDest=null,sinkId=localStorage.getItem("vb_sink")||"";
+const ctxSink=()=>!!(window.AudioContext&&AudioContext.prototype.setSinkId);
+const elSink=()=>!!(window.HTMLMediaElement&&HTMLMediaElement.prototype.setSinkId);
+function routeOut(){ // AudioContext.setSinkId keeps the low-latency path; <audio> fallback only if a non-default device is chosen
+  if(!master)return;try{master.disconnect();}catch(e){}
+  if(sinkId&&!ctxSink()&&elSink()){
+    if(!outEl){outDest=ctx.createMediaStreamDestination();outEl=new Audio();outEl.autoplay=true;outEl.srcObject=outDest.stream;}
+    master.connect(outDest);outEl.setSinkId(sinkId).catch(()=>{});outEl.play().catch(()=>{});
+  }else{master.connect(ctx.destination);if(outEl)outEl.pause();}
+}
+async function setSink(id){sinkId=id;localStorage.setItem("vb_sink",id);
+  try{if(ctx&&ctxSink())await ctx.setSinkId(id);}catch(e){status("Couldn't switch output: "+e.message,1);}
+  routeOut();refreshOutputs();}
+async function refreshOutputs(){
+  const lbl=$("outLbl"),sel=$("outSel");let outs=[];
+  try{outs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==="audiooutput");}catch(e){}
+  if(sinkId&&outs.length&&!outs.some(d=>d.deviceId===sinkId)){sinkId="";localStorage.removeItem("vb_sink");if(ctx&&ctxSink())ctx.setSinkId("").catch(()=>{});routeOut();}
+  const canPick=(ctxSink()||elSink())&&outs.length>1;
+  if(!canPick){sel.hidden=true;
+    const named=outs.find(d=>d.deviceId==="default"&&d.label)||outs.find(d=>d.label);
+    lbl.textContent=named&&outs.length===1&&!/^default$/i.test(named.label)?`Plays on: ${named.label.replace(/^Default - /,"")}`:"Plays on: phone's current output (connect/disconnect earbuds to switch)";
+    if(navigator.mediaDevices.selectAudioOutput&&(ctxSink()||elSink())){sel.hidden=false;sel.innerHTML='<option value="">Phone default</option><option value="__pick">Choose a device…</option>';if(sinkId){const o=document.createElement("option");o.value="__x";o.textContent="Chosen device";sel.prepend(o);}sel.value=sinkId?"__x":"";}
+    return;}
+  sel.hidden=false;sel.innerHTML="";
+  for(const d of outs){const o=document.createElement("option");o.value=d.deviceId==="default"?"":d.deviceId;o.textContent=d.label||(d.deviceId==="default"?"Default":"Output "+(sel.length+1));if(d.deviceId!=="default"||!sel.querySelector('option[value=""]'))sel.append(o);}
+  if(navigator.mediaDevices.selectAudioOutput){const o=document.createElement("option");o.value="__pick";o.textContent="Other device…";sel.append(o);}
+  sel.value=sinkId;const cur=outs.find(d=>(sinkId?d.deviceId===sinkId:d.deviceId==="default"))||outs[0];
+  lbl.textContent="Plays on: "+((cur&&cur.label)||"default output").replace(/^Default - /,"");
+}
+$("outSel").addEventListener("change",async e=>{const v=e.target.value;
+  if(v==="__pick"){try{const d=await navigator.mediaDevices.selectAudioOutput();await setSink(d.deviceId);}catch(err){refreshOutputs();}return;}
+  if(v!=="__x")setSink(v);});
+if(navigator.mediaDevices&&navigator.mediaDevices.addEventListener)navigator.mediaDevices.addEventListener("devicechange",refreshOutputs);
 // ---------- main UI ----------
 for(const[k,p]of Object.entries(PRESETS)){const b=document.createElement("button");b.dataset.k=k;b.innerHTML=`<span>${p.e}</span>${p.n}`;b.onclick=()=>setPreset(k);$("presets").append(b);}
 function setPreset(k){cur=k;localStorage.setItem("vb_preset",k);const p=PRESETS[k];$("sPitch").value=p.pitch;$("sDist").value=p.dist;$("sWet").value=p.wet;
@@ -343,6 +378,6 @@ $("edSave").onclick=()=>edSave(false);$("edSaveNew").onclick=()=>edSave(true);
 $("edMp3").onclick=()=>edExport("mp3");$("edWav").onclick=()=>edExport("wav");
 addEventListener("resize",()=>{if(!$("ed").hidden)edDraw();});
 
-setPreset(PRESETS[cur]?cur:"robot");setMode("rec");renderList();
-window.__vb={setPreset:k=>setPreset(k),get ctx(){return ctx},get on(){return on},get mode(){return mode},get master(){return master},get hp(){return hp},get E(){return E},allClips,toMp3};
+setPreset(PRESETS[cur]?cur:"robot");setMode("rec");renderList();refreshOutputs();
+window.__vb={refreshOutputs,get sinkId(){return sinkId},setPreset:k=>setPreset(k),get ctx(){return ctx},get on(){return on},get mode(){return mode},get master(){return master},get hp(){return hp},get E(){return E},allClips,toMp3};
 })();
