@@ -8,31 +8,61 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
 <link rel="stylesheet" href="/css/styles.css" />
 <style>
-.vb{padding:14px 14px 18px}
-.warn{background:#2a1a00;border:2px solid #ff7a18;border-radius:12px;padding:8px 10px;font-size:12.5px;color:#ffd9a8;margin-bottom:12px}
-.modes{display:flex;gap:6px;margin-bottom:12px}
-.modes button,.presets button{flex:1;background:#111;border:2px solid #1a3f8a;color:#f6f1e4;border-radius:12px;padding:9px 4px;font:700 13px inherit;font-family:inherit}
-.modes button.on,.presets button.on{border-color:#f0c43a;background:#2a2206;color:#f0c43a}
-.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
-.presets button{font-size:11.5px;padding:8px 2px}
-.presets button span{display:block;font-size:20px}
-#mic{display:block;margin:6px auto 10px;width:150px;height:150px;border-radius:50%;border:5px solid #2a6ad6;background:radial-gradient(#1b2b52,#0a0a0c);color:#f0c43a;font:800 17px inherit;font-family:inherit;box-shadow:0 6px 0 #163a86;touch-action:none;user-select:none;-webkit-user-select:none}
-#mic.live{border-color:#ff3b3b;background:radial-gradient(#5a1010,#140404);color:#fff;box-shadow:0 0 30px #ff3b3b88}
-#viz{width:100%;height:70px;background:#050505;border:2px solid #1a3f8a;border-radius:12px;display:block}
-.meter{height:8px;background:#111;border-radius:6px;margin:8px 0 12px;overflow:hidden}
-.meter{position:relative;height:12px}.meter u{position:absolute;top:-2px;bottom:-2px;width:3px;background:#fff;box-shadow:0 0 4px #fff}.meter i.open{opacity:1}
-.tog{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:8px 0}.tog input{width:20px;height:20px;accent-color:#f0c43a}
-.meter i{opacity:.55;display:block;height:100%;width:0;background:linear-gradient(90deg,#2ad66a,#f0c43a,#ff3b3b)}
-label.sl{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:6px 0}
-label.sl span{width:78px}label.sl b{width:44px;text-align:right;color:#f0c43a}
+.vb{padding:12px 14px 18px}
+button{font-family:inherit}
+.modes{display:flex;gap:8px;margin-bottom:12px}
+.modes button{flex:1;background:#111;border:2px solid #1a3f8a;color:#f6f1e4;border-radius:14px;padding:12px 4px;font-weight:800;font-size:15px}
+.modes button.on{border-color:#f0c43a;background:#2a2206;color:#f0c43a}
+.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.presets button{background:#111;border:2px solid #1a3f8a;color:#f6f1e4;border-radius:12px;padding:7px 2px;font-weight:700;font-size:12px}
+.presets button.on{border-color:#f0c43a;background:#2a2206;color:#f0c43a}
+.presets button span{display:block;font-size:22px}
+#mic{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:8px auto 6px;width:156px;height:156px;border-radius:50%;border:5px solid #2a6ad6;background:radial-gradient(#1b2b52,#0a0a0c);color:#f0c43a;font-weight:800;font-size:19px;box-shadow:0 6px 0 #163a86;touch-action:none;user-select:none;-webkit-user-select:none}
+#mic span{font-size:34px;line-height:1.1;color:#ff4b4b}
+#mic small{font-size:13px;color:#fff;margin-top:2px}
+#mic.live{border-color:#f0c43a;box-shadow:0 0 28px #f0c43a77}
+#mic.live span{color:#fff}
+#mic.rec{border-color:#ff3b3b;background:radial-gradient(#5a1010,#140404);color:#fff;box-shadow:0 0 30px #ff3b3b88}
+#liveRec{display:block;margin:0 auto 8px;background:#111;border:2px solid #ff3b3b;color:#ff8080;border-radius:22px;padding:10px 22px;font-weight:800;font-size:15px}
+#liveRec[hidden]{display:none}
+#liveRec.rec{background:#ff3b3b;color:#fff}
+.status{text-align:center;font-size:12.5px;color:#c8c0b0;min-height:34px;margin:2px 0 6px}
+.status.bad{color:#ff8a5b;font-weight:800}
+#viz{width:100%;height:54px;background:#050505;border:2px solid #1a3f8a;border-radius:12px;display:block}
+.meter{height:8px;background:#111;border-radius:6px;margin:6px 0 10px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2ad66a,#f0c43a,#ff3b3b);opacity:.5}
+.meter i.open{opacity:1}
+details.more{border:2px solid #1a3f8a;border-radius:12px;padding:6px 10px;margin:4px 0 14px}
+details.more summary{font-weight:800;font-size:14px;color:#f0c43a;padding:4px 0;cursor:pointer}
+label.sl{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:8px 0}
+label.sl span{width:80px}label.sl b{width:36px;text-align:right;color:#f0c43a}
 label.sl input{flex:1;accent-color:#f0c43a}
-.status.bad{color:#ff6b6b;font-weight:800}
-.status{text-align:center;font-size:12.5px;color:#c8c0b0;min-height:18px;margin:4px 0}
-.clip{margin-top:10px;display:flex;flex-direction:column;gap:8px}
-.clip audio{width:100%}
-.clip .row{display:flex;gap:6px}
-.clip .row a,.clip .row button{flex:1;text-align:center;background:#111;border:2px solid #2a6ad6;color:#f6f1e4;border-radius:12px;padding:9px;font:700 13px inherit;font-family:inherit}
+.tog{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:9px 0}.tog input{width:20px;height:20px;accent-color:#f0c43a;flex:none}
+.liveonly{display:none}body.is-live .liveonly{display:block}body.is-live label.liveonly{display:flex}
+h2.ct{font-size:16px;margin:4px 0 8px;color:#f0c43a}
+#clips{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+#clips li{display:flex;align-items:center;gap:8px;background:#111;border:2px solid #1a3f8a;border-radius:12px;padding:6px}
+#clips li.hi{border-color:#f0c43a}
+#clips .meta{flex:1;min-width:0}#clips .meta b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#clips small{color:#9a9384;font-size:11.5px}
+#clips button{background:#0a0a0c;border:2px solid #2a6ad6;color:#f6f1e4;border-radius:10px;height:40px;min-width:40px;font-weight:800;font-size:14px}
+#clips .edit{border-color:#f0c43a;color:#f0c43a;padding:0 12px}
+.hint{font-size:12px;color:#9a9384;margin:6px 0}
 .back{display:inline-block;margin:0 0 6px;font-size:13px;color:#c8c0b0}
+/* editor */
+#ed{position:fixed;inset:0;background:#050505;z-index:50;overflow:auto;padding:max(10px,env(safe-area-inset-top)) 12px 24px}
+#ed .top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+#ed .top b{flex:1;font-size:16px;color:#f0c43a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ed button{background:#111;border:2px solid #2a6ad6;color:#f6f1e4;border-radius:12px;padding:11px 6px;font-weight:800;font-size:13.5px}
+#ed button:disabled{opacity:.35}
+#ed .row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}
+#ed .row.two{grid-template-columns:1fr 1fr}
+#ed .big{border-color:#f0c43a;color:#f0c43a}
+#wave{width:100%;height:150px;border:2px solid #1a3f8a;border-radius:12px;touch-action:none;display:block}
+#edInfo{font-size:12px;color:#c8c0b0;margin:6px 0 2px;text-align:center}
+#ed h3{font-size:13px;color:#9a9384;margin:12px 0 2px;text-transform:uppercase;letter-spacing:.1em}
+#edPreset{width:100%;background:#111;color:#f6f1e4;border:2px solid #2a6ad6;border-radius:12px;padding:10px;font:700 15px inherit}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#f0c43a;color:#111;font-weight:800;padding:10px 16px;border-radius:20px;z-index:60;font-size:14px}
+body.noscroll{overflow:hidden}
 </style>
 </head>
 <body>
@@ -41,29 +71,49 @@ label.sl input{flex:1;accent-color:#f0c43a}
 <section class="shell">
 <header class="header"><h1 class="pid-title">Voice Box</h1><p class="subtitle">Talk · get twisted</p></header>
 <div class="vb">
-  <div class="warn">🎧 Live mode needs headphones or the speaker howls. No headphones? <b>Record &amp; play</b> is safe. Nothing leaves your phone.</div>
-  <div class="modes"><button id="mRec" class="on">⏺ Record &amp; play</button><button id="mLive">🎧 Live</button></div>
-  <div class="warn" id="hp" hidden>Live plays your voice out instantly. On a phone speaker that howls. <b>Headphones in?</b>
-    <div class="modes" style="margin:8px 0 0"><button id="hpYes" class="on">🎧 I'm wearing headphones</button><button id="hpNo">Cancel</button></div></div>
-  <div id="liveOpts" hidden>
-  <label class="sl"><span>Volume</span><input id="sVol" type="range" min="0" max="100" value="80"><b id="vVol">80</b></label>
-  <label class="tog"><input id="ptt" type="checkbox"> Push-to-talk only (sound stops when you let go)</label>
-  <label class="tog"><input id="lowlat" type="checkbox"> Low latency (headphones) — turns echo cancel off</label>
-  </div>
+  <div class="modes"><button id="mRec" class="on">⏺ Record</button><button id="mLive">🔊 Live</button></div>
   <div class="presets" id="presets"></div>
-  <button id="mic" type="button">TAP TO TALK</button>
-  <div class="status" id="status">Tap for on/off · hold to push-to-talk</div>
-  <canvas id="viz" width="600" height="140"></canvas>
-  <div class="meter"><i id="lvl"></i><u id="thr"></u></div>
-  <label class="sl"><span>Sensitivity</span><input id="sSens" type="range" min="0" max="100" value="44"><b id="vSens">44</b></label>
-  <label class="tog"><input id="nf" type="checkbox" checked> Noise filter (phone noise suppression + rumble cut)</label>
-  <label class="sl"><span>Pitch</span><input id="sPitch" type="range" min="-12" max="12" step="1" value="0"><b id="vPitch">0</b></label>
-  <label class="sl"><span>Distortion</span><input id="sDist" type="range" min="0" max="100" value="0"><b id="vDist">0</b></label>
-  <label class="sl"><span>Wet mix</span><input id="sWet" type="range" min="0" max="100" value="100"><b id="vWet">100</b></label>
-  <div class="clip" id="clip" hidden></div>
+  <button id="mic" type="button"></button>
+  <button id="liveRec" type="button" hidden>● Record this</button>
+  <div class="status" id="status"></div>
+  <canvas id="viz" width="600" height="110"></canvas>
+  <div class="meter"><i id="lvl"></i></div>
+  <label class="sl liveonly"><span>Volume</span><input id="sVol" type="range" min="0" max="100" value="80"><b id="vVol">80</b></label>
+  <details class="more"><summary>More settings</summary>
+    <label class="sl"><span>Pitch</span><input id="sPitch" type="range" min="-12" max="12" step="1" value="0"><b id="vPitch">0</b></label>
+    <label class="sl"><span>Distortion</span><input id="sDist" type="range" min="0" max="100" value="0"><b id="vDist">0</b></label>
+    <label class="sl"><span>Effect mix</span><input id="sWet" type="range" min="0" max="100" value="100"><b id="vWet">100</b></label>
+    <label class="sl"><span>Mic sensitivity</span><input id="sSens" type="range" min="0" max="100" value="44"><b id="vSens">44</b></label>
+    <label class="tog"><input id="nf" type="checkbox" checked> Noise filter (cuts room noise + rumble)</label>
+    <label class="tog"><input id="guard" type="checkbox" checked> Squeal guard in Live (turns down briefly if it howls)</label>
+    <label class="tog"><input id="ptt" type="checkbox"> Live: hold-to-talk only</label>
+    <label class="tog"><input id="lowlat" type="checkbox"> Live: low delay for earbuds (turns echo cancel off)</label>
+  </details>
+  <h2 class="ct">My clips</h2>
+  <p class="hint" id="noClips">Your recordings save here on this phone. Tap Edit to cut and add effects.</p>
+  <ul id="clips"></ul>
+  <p class="hint" id="quota"></p>
 </div>
 </section>
 </div>
+<div id="ed" hidden>
+  <div class="top"><button id="edClose">‹ Back</button><b id="edName"></b><button id="edUndo">↶ Undo</button></div>
+  <canvas id="wave"></canvas>
+  <div id="edInfo"></div>
+  <div class="row two"><button id="edPlay" class="big">▶ Play</button><button id="edAll">Select none</button></div>
+  <h3>Edit <span style="text-transform:none">· applies to <span id="edSelOnly">whole clip</span></span></h3>
+  <div class="row"><button data-op="cut">✂ Cut</button><button data-op="trim">⇤ Keep only</button><button data-op="reverse">⇄ Reverse</button></div>
+  <div class="row"><button data-op="fadein">◢ Fade in</button><button data-op="fadeout">◣ Fade out</button><button data-op="louder">🔊 Louder</button></div>
+  <div class="row"><button data-op="quieter">🔉 Quieter</button></div>
+  <h3>Effects</h3>
+  <select id="edPreset"></select>
+  <div class="row two"><button id="edFx" class="big">＋ Add on top</button><button id="edRevoice">↺ Re-voice from mic</button></div>
+  <h3>Save &amp; share</h3>
+  <div class="row two"><button id="edSave" class="big">💾 Save</button><button id="edSaveNew">Save as new</button></div>
+  <div class="row two"><button id="edMp3" class="big">⬆ MP3</button><button id="edWav">⬆ WAV</button></div>
+  <p class="hint">Everything stays on this phone. MP3 uses LAME (LGPL) via lamejs.</p>
+</div>
+<div id="toast" hidden></div>
 <script src="/voicebox/voicebox.js"></script>
 </body>
 </html>
