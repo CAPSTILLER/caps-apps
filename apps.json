@@ -1,21 +1,146 @@
 {
   "_readme": "CAP Apps web launcher list. Same order as the Android CAP Apps launcher. Leave icon out for a letter tile. Set enabled false to hide.",
   "apps": [
-    { "label": "CAPs Mind",   "url": "https://capsmind.gearup.wtf/",   "icon": "capsmind.png" },
-    { "label": "Arena",       "url": "https://arena.gearup.wtf/",      "icon": "arena.png" },
-    { "label": "Voice Box",   "url": "https://capsapps.gearup.wtf/voicebox", "icon": "voicebox.png" },
-    { "label": "GEAR Hub",    "url": "https://hub.gearup.wtf/",        "icon": "hub.png" },
-    { "label": "GEAR",        "url": "https://landonthis.gearup.wtf/", "icon": "landonthis.png" },
-    { "label": "Wash yo Apps", "url": "https://appswipe.gearup.wtf/",  "icon": "appswipe.png" },
-    { "label": "XcommuniCAP", "url": "https://xcap.gearup.wtf/",       "icon": "xcap.png" },
-    { "label": "Reclaim Bay", "url": "https://claim.gearup.wtf/" },
-    { "label": "My Wally",    "url": "https://mywally.gearup.wtf/",    "icon": "mywally.png" },
-    { "label": "Hotdogu",     "url": "https://hotdogu.gearup.wtf/",    "icon": "hotdogu.png" },
-    { "label": "Read it",     "url": "https://readit.gearup.wtf/",     "icon": "readit.png" },
-    { "label": "99 Audio",    "url": "https://99audio.gearup.wtf/",    "icon": "99audio.png" },
-    { "label": "My Tuner",    "url": "https://mytuner.gearup.wtf/",    "icon": "mytuner.png" },
-    { "label": "CAPs Garage", "url": "https://capsgarage.gearup.wtf/" },
-    { "label": "CAPdropper",  "url": "https://capdropper.gearup.wtf/" },
-    { "label": "GEAR Logos",  "url": "https://svg.gearup.wtf/",        "icon": "svg.png" }
+    {
+      "label": "CAPs Mind",
+      "url": "https://capsmind.gearup.wtf/",
+      "icon": "capsmind.png"
+    },
+    {
+      "label": "Arena",
+      "url": "https://arena.gearup.wtf/",
+      "icon": "arena.png"
+    },
+    {
+      "label": "Voice Box",
+      "url": "https://capsapps.gearup.wtf/voicebox",
+      "icon": "voicebox.png"
+    },
+    {
+      "label": "GEAR Hub",
+      "url": "https://hub.gearup.wtf/",
+      "icon": "hub.png"
+    },
+    {
+      "label": "GEAR",
+      "url": "https://landonthis.gearup.wtf/",
+      "icon": "landonthis.png"
+    },
+    {
+      "label": "Wash yo Apps",
+      "url": "https://appswipe.gearup.wtf/",
+      "icon": "appswipe.png"
+    },
+    {
+      "label": "XcommuniCAP",
+      "url": "https://xcap.gearup.wtf/",
+      "icon": "xcap.png"
+    },
+    {
+      "label": "Reclaim Bay",
+      "url": "https://claim.gearup.wtf/"
+    },
+    {
+      "label": "My Wally",
+      "url": "https://mywally.gearup.wtf/",
+      "icon": "mywally.png"
+    },
+    {
+      "label": "Hotdogu",
+      "url": "https://hotdogu.gearup.wtf/",
+      "icon": "hotdogu.png"
+    },
+    {
+      "label": "Read it",
+      "url": "https://readit.gearup.wtf/",
+      "icon": "readit.png"
+    },
+    {
+      "label": "99 Audio",
+      "url": "https://99audio.gearup.wtf/",
+      "icon": "99audio.png"
+    },
+    {
+      "label": "My Tuner",
+      "url": "https://mytuner.gearup.wtf/",
+      "icon": "mytuner.png"
+    },
+    {
+      "label": "CAPs Garage",
+      "url": "https://capsgarage.gearup.wtf/"
+    },
+    {
+      "label": "CAPdropper",
+      "url": "https://capdropper.gearup.wtf/"
+    },
+    {
+      "label": "GEAR Logos",
+      "url": "https://svg.gearup.wtf/",
+      "icon": "svg.png"
+    },
+    {
+      "label": "AYB Bag",
+      "url": "https://aybags.gearup.wtf/",
+      "icon": "aybags.png"
+    },
+    {
+      "label": "Mysbase",
+      "url": "https://mysbase.gearup.wtf/",
+      "icon": "mysbase.png"
+    },
+    {
+      "label": "Tracer Studio",
+      "url": "https://studio.gearup.wtf/",
+      "icon": "studio.png"
+    },
+    {
+      "label": "Gear Tracer",
+      "url": "https://tracer.gearup.wtf/",
+      "icon": "tracer.png"
+    },
+    {
+      "label": "Pen Plot",
+      "url": "https://penplot.gearup.wtf/",
+      "icon": "penplot.png"
+    },
+    {
+      "label": "Paper Art",
+      "url": "https://planes.gearup.wtf/",
+      "icon": "planes.png"
+    },
+    {
+      "label": "Paper Games",
+      "url": "https://papergames.gearup.wtf/"
+    },
+    {
+      "label": "I Still",
+      "url": "https://istill.gearup.wtf/",
+      "icon": "istill.png"
+    },
+    {
+      "label": "Gearmill",
+      "url": "https://gearmill.gearup.wtf/",
+      "icon": "gearmill.png"
+    },
+    {
+      "label": "LP Manager",
+      "url": "https://lp.gearup.wtf/"
+    },
+    {
+      "label": "Midas Gated",
+      "url": "https://mygates.gearup.wtf/"
+    },
+    {
+      "label": "We B qr",
+      "url": "https://payup.gearup.wtf/"
+    },
+    {
+      "label": "My Assets",
+      "url": "https://myassets.gearup.wtf/"
+    },
+    {
+      "label": "Cap x Waldo",
+      "url": "https://caploveswaldo.gearup.wtf/"
+    }
   ]
 }

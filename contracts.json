@@ -38,6 +38,26 @@
           "name": "CAPs Rocks",
           "address": "0x0fa575fd563517549e714acde968051a7310aadb",
           "desc": "CAPs Rocks: wallet-seeded avatar NFTs forged by burning a Prophecy Tablet; faces/poses saved onchain"
+        },
+        {
+          "name": "Wallet Gear",
+          "address": "0xfeea9d53fd97cacb7ab0e8ec1037a89c5f034df2",
+          "desc": "Wallet Gear NFT. Gear you hold in your wallet."
+        },
+        {
+          "name": "GearTradeDesk",
+          "address": "0x6b05415f46f7adde0b9b343726257ebe34757374",
+          "desc": "Gear trade desk. Swap and trade Gear NFTs."
+        },
+        {
+          "name": "Mysbase MagazineKey",
+          "address": "0x5b7efe6793d67e4dafe4c014f4efedf74726e964",
+          "desc": "Mysbase MagazineKey. Sealed keys for Mysbase rooms."
+        },
+        {
+          "name": "Mysbase RoomPass",
+          "address": "0x35db0f47a451e3f54b928dc1ddc1204ba4be96eb",
+          "desc": "Mysbase RoomPass. Pass NFT for entering Mysbase rooms."
         }
       ]
     },
@@ -67,7 +87,7 @@
         {
           "name": "My Wally (MY8)",
           "address": "0x187a4f47bed10a12d2c12b15457884bfbbecc1ed",
-          "desc": "My Wally — Waldo Studio NFTs (Cap's collection). Owned by the Ledger. Token #1 is minted.",
+          "desc": "My Wally \u2014 Waldo Studio NFTs (Cap's collection). Owned by the Ledger. Token #1 is minted.",
           "url": "https://opensea.io/item/base/0x187a4f47bed10a12d2c12b15457884bfbbecc1ed/1"
         },
         {

@@ -22,7 +22,7 @@
 
     if (app.icon) {
       const img = document.createElement("img");
-      img.src = "./icons/" + app.icon;
+      img.src = "./icons/" + app.icon + "?v=20261027";
       img.alt = "";
       img.loading = "lazy";
       img.decoding = "async";
